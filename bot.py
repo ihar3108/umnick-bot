@@ -1,3 +1,5 @@
+import sys, os
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import logging, os
 from flask import Flask
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler
