@@ -1,0 +1,11 @@
+app = "umnick-bot"          # ← замени на уникальное имя
+primary_region = "cdg"      # Париж (бесплатные машины)
+[build]
+  dockerfile = "Dockerfile"
+[[services]]
+  internal_port = 8080
+  protocol = "tcp"
+  auto_stop_machines = true
+  auto_start_machines = true
+  [[services.ports]]
+    port = 443
