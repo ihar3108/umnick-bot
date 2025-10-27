@@ -4,7 +4,7 @@ import logging
 import threading
 import time
 import requests
-from concurrent.futures import ThreadPoolExecutor   # ← пул для Telegram-обработки
+import asyncio                                    # ← для корректного await
 
 # ---------- Telegram & Flask ----------
 from flask import Flask, request, send_from_directory
@@ -53,17 +53,19 @@ for h in admin_handlers():
 def index():
     return "Bot is alive", 200
 
-# ---------- синхронный webhook (без async) ----------
-executor = ThreadPoolExecutor(max_workers=4)   # пул на 4 потока
-
+# ---------- webhook: синхронный вход, async-обработка в event-loop ----------
 @app_flask.route(f"/{BOT_TOKEN}", methods=["POST"])
 def webhook():
-    """Синхронный webhook – выполняем Telegram-логику в пуле потоков"""
+    """Синхронный вход, но Telegram-логика выполняется в event-loop бота"""
     json_data = request.get_json(force=True)
-    logging.info(f"RAW update: {json_data}")          # можно убрать позже
+    logging.info(f"RAW update: {json_data}")
     update = Update.de_json(json_data, application.bot)
-    # запускаем обработку **в пуле** – не блокируем Flask
-    executor.submit(application.process_update, update)
+
+    # кладём корутину в РАБОЧИЙ loop приложения – не блокируем Flask
+    asyncio.run_coroutine_threadsafe(
+        application.process_update(update),
+        application.update_queue.loop
+    )
     return "ok", 200
 
 @app_flask.route("/web/2048")
@@ -88,18 +90,22 @@ if __name__ == "__main__":
     ext_url = os.getenv("RENDER_EXTERNAL_URL")
 
     if ext_url:                       # продакшн на Render
-        # устанавливаем webhook (синхронно)
+        # 1. ЗАПУСКАЕМ Application (создаётся event-loop)
+        application.initialize()
+        application.start()           # ← теперь loop существует
+
+        # 2. ставим webhook
         webhook_url = f"{ext_url}/{BOT_TOKEN}"
         application.bot.set_webhook(webhook_url)
         logging.info(f"Webhook set to: {webhook_url}")
 
-        # поток самопинга
+        # 3. поток самопинга
         ka_thread = threading.Thread(target=keep_alive, daemon=True)
         ka_thread.start()
 
-        # Flask-сервер (блокирующий, но в отдельном потоке)
+        # 4. Flask-блок
         app_flask.run(host="0.0.0.0", port=int(os.getenv("PORT", 8080)))
 
-    else:                             # локальный запуск
+    else:                             # локальный polling
         logging.info("Running in development mode (polling)")
         application.run_polling()
