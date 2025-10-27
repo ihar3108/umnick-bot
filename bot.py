@@ -96,4 +96,10 @@ if __name__ == "__main__":
 
     else:                             # локальный запуск
         logging.info("Running in development mode (polling)")
-        application.run_polling()
+        application.run_polling()@app_flask.route(f"/{BOT_TOKEN}", methods=["POST"])
+def webhook():
+    json_data = request.get_json(force=True)
+    logging.info(f"RAW update: {json_data}")          # ← добавьте
+    update = Update.de_json(json_data, application.bot)
+    application.update_queue.put(update)
+    return "ok", 200
