@@ -7,13 +7,14 @@ import requests
 
 # --- Telegram & Flask ---
 from flask import Flask, request, send_from_directory
-from telegram import Update, InlineQueryHandler
-from telegram.ext import (
+from telegram import Update                      # ← только классы-модели
+from telegram.ext import (                       # ← все обработчики
     Application,
     CommandHandler,
     CallbackQueryHandler,
     MessageHandler,
     filters,
+    InlineQueryHandler
 )
 
 # --- наши модули ---
