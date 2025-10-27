@@ -4,11 +4,12 @@ import logging
 import threading
 import time
 import requests
+import asyncio                                    # ← для await
 
-# --- Telegram & Flask ---
+# ---------- Telegram & Flask ----------
 from flask import Flask, request, send_from_directory
-from telegram import Update                      # ← только классы-модели
-from telegram.ext import (                       # ← все обработчики
+from telegram import Update
+from telegram.ext import (
     Application,
     CommandHandler,
     CallbackQueryHandler,
@@ -17,14 +18,14 @@ from telegram.ext import (                       # ← все обработчи
     InlineQueryHandler
 )
 
-# --- наши модули ---
+# ---------- наши модули ----------
 from config import BOT_TOKEN
 from handlers.start import start
 from handlers.game import play, answer
 from handlers.top import top
 from handlers.payout import withdraw, paid
 from handlers.admin import admin_handlers
-from handlers.inline import inline_query   # ваш inline-режим
+from handlers.inline import inline_query
 
 logging.basicConfig(
     format="%(asctime)s | %(levelname)s | %(message)s",
@@ -44,7 +45,6 @@ application.add_handler(CallbackQueryHandler(withdraw, pattern="^withdraw$"))
 application.add_handler(CallbackQueryHandler(paid, pattern="^paid_"))
 application.add_handler(InlineQueryHandler(inline_query))
 
-# админ-команды
 for h in admin_handlers():
     application.add_handler(h)
 
@@ -54,10 +54,12 @@ def index():
     return "Bot is alive", 200
 
 @app_flask.route(f"/{BOT_TOKEN}", methods=["POST"])
-def webhook():
+async def webhook():
+    """Асинхронный webhook – корректно кладёт update в очередь"""
     json_data = request.get_json(force=True)
+    logging.info(f"RAW update: {json_data}")          # можно убрать позже
     update = Update.de_json(json_data, application.bot)
-    application.update_queue.put(update)
+    await application.update_queue.put(update)        # ← await обязателен
     return "ok", 200
 
 @app_flask.route("/web/2048")
@@ -75,31 +77,24 @@ def keep_alive():
             logging.info(f"Keep-alive ping: {resp.status_code}")
         except Exception as e:
             logging.error(f"Keep-alive error: {e}")
-        time.sleep(300)          # 5 мин
+        time.sleep(300)
 
 # ---------- запуск ----------
-if __name__ == "__main__":
+async def main():
+    """Асинхронно ставим webhook и запускаем Flask"""
     ext_url = os.getenv("RENDER_EXTERNAL_URL")
-
-    if ext_url:                       # продакшн на Render
-        # ставим вебхук
+    if ext_url:
         webhook_url = f"{ext_url}/{BOT_TOKEN}"
-        application.bot.set_webhook(webhook_url)
+        await application.bot.set_webhook(webhook_url)
         logging.info(f"Webhook set to: {webhook_url}")
 
-        # поток самопинга
-        ka_thread = threading.Thread(target=keep_alive, daemon=True)
-        ka_thread.start()
+    # поток самопинга
+    ka_thread = threading.Thread(target=keep_alive, daemon=True)
+    ka_thread.start()
 
-        # Flask-сервер
-        app_flask.run(host="0.0.0.0", port=int(os.getenv("PORT", 8080)))
+    # Flask-сервер (блокирующий, но работает в отдельном потоке)
+    app_flask.run(host="0.0.0.0", port=int(os.getenv("PORT", 8080)))
 
-    else:                             # локальный запуск
-        logging.info("Running in development mode (polling)")
-        application.run_polling()@app_flask.route(f"/{BOT_TOKEN}", methods=["POST"])
-def webhook():
-    json_data = request.get_json(force=True)
-    logging.info(f"RAW update: {json_data}")          # ← добавьте
-    update = Update.de_json(json_data, application.bot)
-    application.update_queue.put(update)
-    return "ok", 200
+if __name__ == "__main__":
+    # запускаем основную async-функцию
+    asyncio.run(main())
