@@ -71,6 +71,7 @@ application.add_handler(CallbackQueryHandler(buy_ticket, pattern="^lottery_buy$"
 application.add_handler(CallbackQueryHandler(shop_menu, pattern="^shop_menu$"))
 application.add_handler(CallbackQueryHandler(buy_nft, pattern="^nft_"))
 application.add_handler(achievements_handler)
+application.add_handler(CommandHandler("achievements", achievements_handler))
 for h in admin_handlers():
     application.add_handler(h)
 
