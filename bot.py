@@ -1,4 +1,13 @@
-import sys, os, logging, threading, time, requests, asyncio
+import sys
+import os
+import logging
+import threading
+import time
+import requests
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
+
+# ---------- Telegram & Flask ----------
 from flask import Flask, request, send_from_directory
 from telegram import Update
 from telegram.ext import (
@@ -6,6 +15,7 @@ from telegram.ext import (
     MessageHandler, filters, InlineQueryHandler
 )
 
+# ---------- наши модули ----------
 from config import BOT_TOKEN
 from handlers.voice import voice_question, voice_answer
 from handlers.start import start
@@ -15,6 +25,21 @@ from handlers.payout import withdraw, paid
 from handlers.admin import admin_handlers
 from handlers.inline import inline_query
 
+# ---------- ОТДЕЛЬНЫЙ event-loop для Telegram-задач ----------
+_telegram_loop = None   # будет инициализован ниже
+
+def _init_telegram_loop():
+    """Создаёт event-loop в отдельном потоке и хранит его."""
+    global _telegram_loop
+    _telegram_loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(_telegram_loop)
+    _telegram_loop.run_forever()
+
+# запускаем поток с loop при импорте
+_telegram_thread = threading.Thread(target=_init_telegram_loop, daemon=True)
+_telegram_thread.start()
+
+# ---------- настройки ----------
 logging.basicConfig(
     format="%(asctime)s | %(levelname)s | %(message)s",
     level=logging.INFO
@@ -43,21 +68,37 @@ for h in admin_handlers():
 def index():
     return "Bot is alive", 200
 
-# ---------- webhook: синхронный вход, async-обработка в event-loop ----------
-# ---------- webhook: синхронный вход, async-обработка в event-loop ----------
-# ---------- webhook: синхронный вход, async-обработка через create_task ----------
+# ---------- webhook: синхронный вход, async-обработка в отдельном loop ----------
 @app_flask.route(f"/{BOT_TOKEN}", methods=["POST"])
 def webhook():
     json_data = request.get_json(force=True)
     logging.info(f"RAW update: {json_data}")
     update = Update.de_json(json_data, application.bot)
 
-    # запускаем корутину в **текущем event-loop** (создаётся при старте)
-    asyncio.get_event_loop().create_task(application.process_update(update))
+    # ставим задачу в отдельный loop – не трогаем loop Flask
+    _telegram_loop.call_soon_threadsafe(
+        lambda: asyncio.create_task(application.process_update(update))
+    )
     return "ok", 200
 
-# ---------- запуск ----------
-# ---------- запуск (async) ----------
+@app_flask.route("/web/2048")
+def webapp_2048():
+    return send_from_directory("web/2048", "index.html")
+
+# ---------- keep-alive (Render) ----------
+def keep_alive():
+    """Фоновый самопинг для Render (без блокировки)"""
+    url = os.getenv("RENDER_EXTERNAL_URL")
+    if not url:
+        return
+    while True:
+        try:
+            resp = requests.get(url, timeout=10)
+            logging.info(f"Keep-alive ping: {resp.status_code}")
+        except Exception as e:
+            logging.error(f"Keep-alive error: {e}")
+        time.sleep(300)          # 5 мин
+
 # ---------- запуск (async) ----------
 async def main():
     ext_url = os.getenv("RENDER_EXTERNAL_URL")
@@ -81,20 +122,6 @@ async def main():
 
     else:                             # локальный polling
         await application.run_polling()
-
-
-def keep_alive():
-    """Фоновый самопинг для Render (без блокировки)"""
-    url = os.getenv("RENDER_EXTERNAL_URL")
-    if not url:
-        return
-    while True:
-        try:
-            resp = requests.get(url, timeout=10)
-            logging.info(f"Keep-alive ping: {resp.status_code}")
-        except Exception as e:
-            logging.error(f"Keep-alive error: {e}")
-        time.sleep(300)          # 5 мин
 
 
 if __name__ == "__main__":
