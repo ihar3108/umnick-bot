@@ -25,3 +25,12 @@ class Payout(Base):
     created = Column(DateTime, default=dt.datetime.utcnow)
 
 Base.metadata.create_all(engine)
+def add_score(uid: int, points: int):
+    """Безопасно прибавляет баллы пользователю."""
+    from sqlalchemy.orm import sessionmaker
+    Session = sessionmaker(bind=engine, expire_on_commit=False)
+    with Session() as s:
+        user = s.get(User, uid)
+        if user:
+            user.score += points
+            s.commit()
