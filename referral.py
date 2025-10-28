@@ -1,6 +1,7 @@
 from aiogram import Router, F, types
 
 router = Router(name="referral")
+referral_router = router
 
 async def handle_referral(uid: int, ref_id: str):
     # TODO: сохранить в БД / выдать звёзды
