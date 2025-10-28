@@ -1,25 +1,13 @@
-import sys
-import os
-import logging
-import threading
-import time
-import requests
-import asyncio                                    # ← для корректного await
-
-# ---------- Telegram & Flask ----------
+import sys, os, logging, threading, time, requests, asyncio
 from flask import Flask, request, send_from_directory
 from telegram import Update
 from telegram.ext import (
-    Application,
-    CommandHandler,
-    CallbackQueryHandler,
-    MessageHandler,
-    filters,
-    InlineQueryHandler
+    Application, CommandHandler, CallbackQueryHandler,
+    MessageHandler, filters, InlineQueryHandler
 )
 
-# ---------- наши модули ----------
 from config import BOT_TOKEN
+from handlers.voice import voice_question, voice_answer
 from handlers.start import start
 from handlers.game import play, answer
 from handlers.top import top
@@ -44,7 +32,9 @@ application.add_handler(CallbackQueryHandler(top, pattern="^top$"))
 application.add_handler(CallbackQueryHandler(withdraw, pattern="^withdraw$"))
 application.add_handler(CallbackQueryHandler(paid, pattern="^paid_"))
 application.add_handler(InlineQueryHandler(inline_query))
-
+# ---------- голосовые вопросы ----------
+application.add_handler(CommandHandler("voice", voice_question))
+application.add_handler(MessageHandler(filters.VOICE, voice_answer))
 for h in admin_handlers():
     application.add_handler(h)
 
@@ -54,45 +44,28 @@ def index():
     return "Bot is alive", 200
 
 # ---------- webhook: синхронный вход, async-обработка в event-loop ----------
+# ---------- webhook: синхронный вход, async-обработка в event-loop ----------
 @app_flask.route(f"/{BOT_TOKEN}", methods=["POST"])
 def webhook():
-    """Синхронный вход, но Telegram-логика выполняется в event-loop бота"""
     json_data = request.get_json(force=True)
     logging.info(f"RAW update: {json_data}")
     update = Update.de_json(json_data, application.bot)
 
-    # кладём корутину в РАБОЧИЙ loop приложения – не блокируем Flask
+    # запускаем корутину в **уже существующем** loop приложения
     asyncio.run_coroutine_threadsafe(
         application.process_update(update),
-        application.update_queue.loop
+        application._loop          # ← рабочий loop после application.start()
     )
     return "ok", 200
-
-@app_flask.route("/web/2048")
-def webapp_2048():
-    return send_from_directory("web/2048", "index.html")
-
-# ---------- keep-alive (Render) ----------
-def keep_alive():
-    url = os.getenv("RENDER_EXTERNAL_URL")
-    if not url:
-        return
-    while True:
-        try:
-            resp = requests.get(url, timeout=10)
-            logging.info(f"Keep-alive ping: {resp.status_code}")
-        except Exception as e:
-            logging.error(f"Keep-alive error: {e}")
-        time.sleep(300)          # 5 мин
 
 # ---------- запуск ----------
 if __name__ == "__main__":
     ext_url = os.getenv("RENDER_EXTERNAL_URL")
 
     if ext_url:                       # продакшн на Render
-        # 1. ЗАПУСКАЕМ Application (создаётся event-loop)
+        # 1. **обязательно** запускаем Application (создаётся event-loop)
         application.initialize()
-        application.start()           # ← теперь loop существует
+        application.start()          # ← теперь _loop существует
 
         # 2. ставим webhook
         webhook_url = f"{ext_url}/{BOT_TOKEN}"
@@ -107,5 +80,4 @@ if __name__ == "__main__":
         app_flask.run(host="0.0.0.0", port=int(os.getenv("PORT", 8080)))
 
     else:                             # локальный polling
-        logging.info("Running in development mode (polling)")
         application.run_polling()
