@@ -41,7 +41,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     kb = [
     [KeyboardButton("🎮 Играть 2048", web_app=WebAppInfo(url="https://umnick-bot-1.onrender.com/web/2048"))],
     [KeyboardButton("🎁 Забрать подарок (через 1 ч)")],
-    [KeyboardButton("📲 Пригласить друга", switch_inline_query="")],
+    [KeyboardButton("📲 Пригласить друга")],
     [InlineKeyboardButton("🏆 Топ-100", callback_data="top"),
      InlineKeyboardButton("💰 Кошелёк", callback_data="withdraw")],
     [InlineKeyboardButton("🎁 Розыгрыш 1 TON", callback_data="lottery_menu")],
