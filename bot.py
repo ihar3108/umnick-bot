@@ -45,17 +45,15 @@ def index():
 
 # ---------- webhook: синхронный вход, async-обработка в event-loop ----------
 # ---------- webhook: синхронный вход, async-обработка в event-loop ----------
+# ---------- webhook: синхронный вход, async-обработка через create_task ----------
 @app_flask.route(f"/{BOT_TOKEN}", methods=["POST"])
 def webhook():
     json_data = request.get_json(force=True)
     logging.info(f"RAW update: {json_data}")
     update = Update.de_json(json_data, application.bot)
 
-    # запускаем корутину в **уже существующем** loop приложения
-    asyncio.run_coroutine_threadsafe(
-        application.process_update(update),
-        application._loop          # ← рабочий loop после application.start()
-    )
+    # запускаем корутину в **текущем event-loop** (создаётся при старте)
+    asyncio.get_event_loop().create_task(application.process_update(update))
     return "ok", 200
 
 # ---------- запуск ----------
