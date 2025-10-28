@@ -2,6 +2,7 @@ from telegram import Update
 from datetime import datetime, timedelta
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from models import add_score, Session, User
+from telegram.ext import ContextTypes
 
 LOTTERY_PRICE = 50   # билет
 LOTTERY_TIME  = "20:00"   # UTC
