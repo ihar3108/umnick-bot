@@ -2,7 +2,7 @@ import asyncio, logging, os
 from aiogram import Bot, Dispatcher, F, types
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from cat_reactions import CAT_REACTIONS
-from games.millionaire import millionaire_router
+from games.millionaire import router as millionaire_router
 from shop import shop_router
 from referral import referral_router
 
