@@ -1,3 +1,4 @@
+from telegram import Update
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 from models import add_score
