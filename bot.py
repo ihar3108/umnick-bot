@@ -59,25 +59,45 @@ def webhook():
     return "ok", 200
 
 # ---------- запуск ----------
-if __name__ == "__main__":
+# ---------- запуск (async) ----------
+# ---------- запуск (async) ----------
+async def main():
     ext_url = os.getenv("RENDER_EXTERNAL_URL")
 
     if ext_url:                       # продакшн на Render
-        # 1. **обязательно** запускаем Application (создаётся event-loop)
-        application.initialize()
-        application.start()          # ← теперь _loop существует
+        # 1. запускаем Application (создаётся event-loop)
+        await application.initialize()
+        await application.start()
 
         # 2. ставим webhook
         webhook_url = f"{ext_url}/{BOT_TOKEN}"
-        application.bot.set_webhook(webhook_url)
+        await application.bot.set_webhook(webhook_url)
         logging.info(f"Webhook set to: {webhook_url}")
 
         # 3. поток самопинга
         ka_thread = threading.Thread(target=keep_alive, daemon=True)
         ka_thread.start()
 
-        # 4. Flask-блок
+        # 4. Flask-блок (блокирующий, но в отдельном потоке)
         app_flask.run(host="0.0.0.0", port=int(os.getenv("PORT", 8080)))
 
     else:                             # локальный polling
-        application.run_polling()
+        await application.run_polling()
+
+
+def keep_alive():
+    """Фоновый самопинг для Render (без блокировки)"""
+    url = os.getenv("RENDER_EXTERNAL_URL")
+    if not url:
+        return
+    while True:
+        try:
+            resp = requests.get(url, timeout=10)
+            logging.info(f"Keep-alive ping: {resp.status_code}")
+        except Exception as e:
+            logging.error(f"Keep-alive error: {e}")
+        time.sleep(300)          # 5 мин
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
