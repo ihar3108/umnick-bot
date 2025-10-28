@@ -1,3 +1,4 @@
+from telegram import Update
 from datetime import datetime, timedelta
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from models import add_score, Session, User
