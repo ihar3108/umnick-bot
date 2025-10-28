@@ -1,8 +1,8 @@
-import random
-from telegram import InlineQueryResultArticle, InputTextMessageContent
+from telegram import Update, InlineQueryResultArticle, InputTextMessageContent
 from telegram.ext import ContextTypes
+import random
 
-async def inline_query(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.inline_query.query
     results = []
 
