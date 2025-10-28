@@ -39,17 +39,18 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # основная клавиатура (постоянная)
     kb = [
-        [KeyboardButton("🎮 Играть 2048", web_app=WebAppInfo(url="https://umnick-bot-1.onrender.com/web/2048"))],
-        [KeyboardButton("🎁 Забрать подарок (через 1 ч)")],
-        [KeyboardButton("📲 Пригласить друга (+20)")],
-        [KeyboardButton("🏆 Топ-100"),
- KeyboardButton("💰 Кошелёк")]
-    ]
+    [KeyboardButton("🎮 Играть 2048", web_app=WebAppInfo(url="https://umnick-bot-1.onrender.com/web/2048"))],
+    [KeyboardButton("🎁 Забрать подарок (через 1 ч)")],
+    [KeyboardButton("📲 Пригласить друга", switch_inline_query="")],
+    [InlineKeyboardButton("🏆 Топ-100", callback_data="top"),
+     InlineKeyboardButton("💰 Кошелёк", callback_data="withdraw")],
+    [InlineKeyboardButton("🎁 Розыгрыш 1 TON", callback_data="lottery_menu")],
+    [InlineKeyboardButton("🐱 NFT-магазин", callback_data="shop_menu")],
+    [InlineKeyboardButton("🗣 Голосовой вопрос", callback_data="voice")]
+]
 
     await update.message.reply_text(
-        f"🔥 Привет, {name}!\n"
-        f"Тебе начислено <b>{BONUS_DAY}</b> баллов + ежечасовой подарок!\n"
-        f"За 1 000 баллов – 1 TON. Рефералка 20/10.",
-        reply_markup=ReplyKeyboardMarkup(kb, resize_keyboard=True),
-        parse_mode="HTML"
-    )
+    "🔥 Привет! Выбери режим:",
+    reply_markup=ReplyKeyboardMarkup(kb, resize_keyboard=True),
+    parse_mode="HTML"
+)

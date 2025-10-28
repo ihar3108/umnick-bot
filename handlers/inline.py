@@ -2,11 +2,10 @@ import random
 from telegram import InlineQueryResultArticle, InputTextMessageContent
 from telegram.ext import ContextTypes
 
-async def inline_query(update: ContextTypes.DEFAULT_TYPE, context: ContextTypes.DEFAULT_TYPE):
+async def inline_query(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     query = update.inline_query.query
     results = []
 
-    # пример: рулетка
     if query.lower() in ("рулетка", "р", ""):
         number = random.randint(1, 6)
         results.append(

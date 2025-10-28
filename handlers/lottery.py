@@ -1,7 +1,11 @@
+from datetime import datetime, timedelta
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from models import add_score, Session, User
+
 LOTTERY_PRICE = 50   # билет
 LOTTERY_TIME  = "20:00"   # UTC
 
-async def lottery_menu(update: Update, ctx):
+async def lottery_menu(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     kb = [[InlineKeyboardButton(f"🎫 Купить билет – {LOTTERY_PRICE} баллов", callback_data="lottery_buy")]]
     await update.callback_query.message.reply_text(
         f"🎁 Розыгрыш 1 TON каждый день в {LOTTERY_TIME} UTC!\n"
@@ -9,7 +13,7 @@ async def lottery_menu(update: Update, ctx):
         reply_markup=InlineKeyboardMarkup(kb)
     )
 
-async def buy_ticket(update: Update, ctx):
+async def buy_ticket(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     uid = update.effective_user.id
     with Session() as s:
         user = s.get(User, uid)
@@ -17,7 +21,6 @@ async def buy_ticket(update: Update, ctx):
             await update.callback_query.answer("Недостаточно баллов", show_alert=True)
             return
         user.score -= LOTTERY_PRICE
-        # сохраняем билеты
         tickets = ctx.bot_data.get("lottery_tickets", {})
         tickets[uid] = tickets.get(uid, 0) + 1
         ctx.bot_data["lottery_tickets"] = tickets

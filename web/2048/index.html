@@ -5,22 +5,23 @@
   <title>2048 в Telegram</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body{font-family:Arial,Helvetica,sans-serif;text-align:center;background:#faf8ef;margin:0;padding:1em}
-    h1{font-size:2em;margin:.2em 0}
-    .score{font-size:1.4em;margin:.5em}
-    .grid{display:inline-block;background:#bbada0;padding:.5em;border-radius:6px;position:relative}
+    body{font-family:Arial,Helvetica,sans-serif;text-align:center;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);margin:0;padding:1em;color:#fff}
+    h1{font-size:2.5em;margin:.2em 0;text-shadow:0 2px 4px rgba(0,0,0,.3)}
+    .score{font-size:1.6em;margin:.5em;text-shadow:0 1px 2px rgba(0,0,0,.3)}
+    .grid{display:inline-block;background:rgba(255,255,255,.1);padding:.5em;border-radius:15px;backdrop-filter:blur(10px)}
     .row{display:flex}
-    .cell{width:70px;height:70px;background:#cdc1b4;margin:5px;border-radius:3px;font-size:2em;font-weight:bold;line-height:70px;color:#776e65}
-    .cell-2{background:#eee4da}.cell-4{background:#ede0c8}.cell-8{background:#f2b179;color:#f9f6f2}
-    .cell-16{background:#f59563;color:#f9f6f2}.cell-32{background:#f67c5f;color:#f9f6f2}
-    .cell-64{background:#f65e3b;color:#f9f6f2}.cell-128{background:#edcf72;color:#f9f6f2;font-size:1.6em}
-    .cell-256{background:#edcc61;color:#f9f6f2;font-size:1.6em}.cell-512{background:#edc850;color:#f9f6f2;font-size:1.6em}
-    .cell-1024{background:#edc53f;color:#f9f6f2;font-size:1.3em}.cell-2048{background:#edc22e;color:#f9f6f2;font-size:1.3em}
-    #retry{display:none;margin:1em auto;padding:.6em 1.2em;font-size:1.1em;border:0;border-radius:4px;background:#8f7a66;color:#f9f6f2;cursor:pointer}
+    .cell{width:70px;height:70px;background:rgba(255,255,255,.2);margin:5px;border-radius:10px;font-size:2em;font-weight:bold;line-height:70px;color:#fff;transition:all .2s}
+    .cell-2{background:#eee4da;color:#776e65}.cell-4{background:#ede0c8;color:#776e65}.cell-8{background:#f2b179;color:#fff}
+    .cell-16{background:#f59563;color:#fff}.cell-32{background:#f67c5f;color:#fff}
+    .cell-64{background:#f65e3b;color:#fff}.cell-128{background:#edcf72;color:#fff}
+    .cell-256{background:#edcc61;color:#fff}.cell-512{background:#edc850;color:#fff}
+    .cell-1024{background:#edc53f;color:#fff}.cell-2048{background:#edc22e;color:#fff;font-size:1.3em}
+    #retry{display:none;margin:1em auto;padding:.8em 1.5em;font-size:1.2em;border:0;border-radius:12px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;cursor:pointer;box-shadow:0 4px 15px rgba(0,0,0,.2)}
+    #retry:hover{transform:scale(1.05)}
   </style>
 </head>
 <body>
-  <h1>2048</h1>
+  <h1>2048 в Telegram</h1>
   <div class="score">Счёт: <span id="score">0</span></div>
   <div class="grid" id="grid"></div>
   <button id="retry" onclick="retry()">🔄 Начать заново</button>
