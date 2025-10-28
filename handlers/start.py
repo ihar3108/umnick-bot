@@ -40,7 +40,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # основная клавиатура (постоянная)
     kb = [
         [KeyboardButton("🎮 Играть 2048", web_app=WebAppInfo(url="https://umnick-bot-1.onrender.com/web/2048"))],
-        [KeyboardButton("🎁 Забрать подарок (через 1 ч)", callback_data="gift")],
+        [KeyboardButton("🎁 Забрать подарок (через 1 ч)")],
         [KeyboardButton("📲 Пригласить друга (+20)", switch_inline_query="")],
         [KeyboardButton("🏆 Топ-100", callback_data="top"),
          KeyboardButton("💰 Кошелёк", callback_data="wallet")]
