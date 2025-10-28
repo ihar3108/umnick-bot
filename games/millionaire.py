@@ -67,6 +67,6 @@ async def ask_question(cb: types.CallbackQuery):
     st = states[cb.from_user.id]
     q = random.choice(QUESTIONS)
     kb = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text=a, callback_data=f"mil_{i}_{q['correct']}")] for i, a in enumerate(q["answers"])
+        [InlineKeyboardButton(text=str(a), callback_data=f"mil_{i}_{q['correct']}")] for i, a in enumerate(q["answers"])
     ] + [[InlineKeyboardButton(text="💡 50/50 (5 ⭐)", callback_data="mil_50")]])
     await cb.message.answer(f"💰 Вопрос {st.q_i + 1} на {PRIZES[st.q_i]} ⭐:\n{q['question']}", reply_markup=kb)
