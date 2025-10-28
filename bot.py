@@ -3,7 +3,7 @@ from aiogram import Bot, Dispatcher, F, types
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from cat_reactions import CAT_REACTIONS
 from games.millionaire import router as millionaire_router
-from shop import shop_router
+from handlers.shop import shop_router
 from referral import referral_router
 
 API_TOKEN = os.getenv("BOT_TOKEN")   # добавишь в Render → Environment
