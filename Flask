@@ -1,0 +1,3 @@
+@app.route("/web")
+def webapp():
+    return render_template("index.html")

@@ -28,7 +28,10 @@ async def buy_nft(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         # генерируем уникальную картинку
         img_url = f"https://api.dicebear.com/7.x/bottts-neutral/png?seed={uid}{level}"
         s.commit()
-    await update.callback_query.message.reply_photo(
-        photo=img_url,
-        caption=f"🎉 Уровень {level} НФТ – ваш! Можете ставить его на аватар."
-    )
+    
+    await update.callback_query.message.reply_text(
+    "📋 NFT-магазин:\n"
+    "• Уникальные аватарки 3 уровней.\n"
+    "• Покупаешь за баллы – ставишь на профиль.\n"
+    "• Никто больше такого не имеет!"
+)

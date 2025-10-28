@@ -24,6 +24,11 @@ from handlers.top import top
 from handlers.payout import withdraw, paid
 from handlers.admin import admin_handlers
 from handlers.inline import inline_query
+from handlers.gift import gift
+from handlers.lottery import lottery_menu, buy_ticket
+from handlers.shop import shop_menu, buy_nft
+from handlers.inline import inline_query
+from handlers.achievements import achievements_handler
 
 # ---------- ОТДЕЛЬНЫЙ event-loop для Telegram-задач ----------
 _telegram_loop = None   # будет инициализован ниже
@@ -60,6 +65,12 @@ application.add_handler(InlineQueryHandler(inline_query))
 # ---------- голосовые вопросы ----------
 application.add_handler(CommandHandler("voice", voice_question))
 application.add_handler(MessageHandler(filters.VOICE, voice_answer))
+application.add_handler(CallbackQueryHandler(gift, pattern="^gift$"))
+application.add_handler(CallbackQueryHandler(lottery_menu, pattern="^lottery_menu$"))
+application.add_handler(CallbackQueryHandler(buy_ticket, pattern="^lottery_buy$"))
+application.add_handler(CallbackQueryHandler(shop_menu, pattern="^shop_menu$"))
+application.add_handler(CallbackQueryHandler(buy_nft, pattern="^nft_"))
+application.add_handler(achievements_handler)
 for h in admin_handlers():
     application.add_handler(h)
 

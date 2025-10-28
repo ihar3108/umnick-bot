@@ -25,4 +25,11 @@ async def buy_ticket(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         tickets[uid] = tickets.get(uid, 0) + 1
         ctx.bot_data["lottery_tickets"] = tickets
         s.commit()
-    await update.callback_query.answer("Билет куплен!")
+    
+    await update.callback_query.message.reply_text(
+    "📋 Розыгрыш 1 TON:\n"
+    "• 1 билет = 50 баллов.\n"
+    "• Розыгрыш каждый день в 20:00 UTC.\n"
+    "• Чем больше билетов – тем выше шанс.\n"
+    "• Победитель получает 1 TON на кошелёк!"
+)

@@ -89,6 +89,13 @@ async def voice_answer(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text(f"❌ Неправильно. Правильный: {right}")
     else:
         await update.message.reply_text("🙁 Не разобрал. Попробуй ещё раз.")
+        await update.message.reply_voice(
+    voice=open(tmp_path, "rb"),
+    caption="🗣 Правила:\n"
+            "• Я задам вопрос голосом.\n"
+            "• Ты отвечаешь голосом.\n"
+            "• Правильный ответ = +15 баллов!"
+)
 
 
 # ----------------- регистрация в bot.py -----------------

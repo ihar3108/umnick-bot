@@ -27,4 +27,11 @@ async def answer(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         txt = f"❌ Неправильно. Правильный ответ: {context.user_data['right']}"
     kb = [[InlineKeyboardButton("Ещё вопрос", callback_data="play")]]
-    await q.edit_message_text(txt, reply_markup=InlineKeyboardMarkup(kb))
+    await q.edit_message_text(
+    "📋 Правила:\n"
+    "• 1 правильный ответ = +10 баллов.\n"
+    "• Мем-вопросы – с картинкой, просто выбери вариант.\n"
+    "• Голосовые – я говорю, ты отвечаешь голосом – +15 баллов.\n"
+    "• 2048 – доведи до 2048 и получи +200 баллов.",
+    reply_markup=InlineKeyboardMarkup(kb)
+)

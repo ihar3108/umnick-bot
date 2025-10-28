@@ -18,7 +18,10 @@ async def gift(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     add_score(uid, GIFT_BONUS)
     ctx.user_data["next_gift"] = now + timedelta(hours=1)
     kb = [[InlineKeyboardButton("🎁 Забрать ещё через час", callback_data="gift")]]
+    
     await update.callback_query.message.reply_text(
-        f"🎁 +{GIFT_BONUS} баллов! Приходи через час – ещё больше.",
-        reply_markup=InlineKeyboardMarkup(kb)
-    )
+    "📋 Ежечасовый подарок:\n"
+    "• Нажимай «🎁 Забрать» каждый час.\n"
+    "• Получаешь +10 баллов.\n"
+    "• Терпение = деньги!"
+)
