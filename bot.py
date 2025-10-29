@@ -118,3 +118,22 @@ def run_dummy_server():
     threading.Thread(target=lambda: web.run_app(runner, host="0.0.0.0", port=10000), daemon=True).start()
 
 run_dummy_server()
+# === DUMMY-WEB: убираем «No open ports detected» ===
+from aiohttp import web
+import threading, asyncio
+
+async def dummy_handler(request):
+    return web.Response(text="Умник 3.0 OK")
+
+def run_dummy_server():
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    app = web.Application()
+    app.router.add_get("/", dummy_handler)
+    runner = web.AppRunner(app)
+    loop.run_until_complete(runner.setup())
+    site = web.TCPSite(runner, "0.0.0.0", 10000)
+    loop.run_until_complete(site.start())
+    loop.run_forever()
+
+threading.Thread(target=run_dummy_server, daemon=True).start()
