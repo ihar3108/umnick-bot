@@ -22,11 +22,10 @@ dp.include_router(shop_router)
 dp.include_router(ref_router)
 
 # --- главное меню ---
-RENDER_URL = os.getenv("RENDER_EXTERNAL_URL", "umnick-bot.onrender.com")
 MAIN_KB = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(
         text="🚀 Вирусный Миллионер",
-        web_app=WebAppInfo(url=f"https://{RENDER_URL}/web")
+        web_app=WebAppInfo(url="https://umnick-bot.onrender.com/web")
     )],
     [InlineKeyboardButton(text="🎵 Песня за 15 сек", callback_data="menu_melody")],
     [InlineKeyboardButton(text="🧠 IQ-Бластер", callback_data="menu_iq")],
@@ -45,7 +44,7 @@ async def start_cmd(m: types.Message):
         chat_id=m.chat.id,
         menu_button=MenuButtonWebApp(
             text="🚀 Играть",
-            web_app=WebAppInfo(url=f"https://{RENDER_URL}/web")
+            web_app=WebAppInfo(url="https://umnick-bot.onrender.com/web")
         )
     )
     await m.answer_photo(
@@ -75,7 +74,7 @@ async def iq(cb: types.CallbackQuery):
         reply_markup=ReplyKeyboardMarkup(
             keyboard=[[KeyboardButton(
                 text="🧩 IQ-Бластер",
-                web_app=WebAppInfo(url=f"https://{RENDER_URL}/iq")
+                web_app=WebAppInfo(url="https://umnick-bot.onrender.com/iq")
             )]],
             resize_keyboard=True, one_time_keyboard=True
         )
