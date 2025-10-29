@@ -21,3 +21,17 @@ async def get_stars(uid: int) -> int:
         cur = await db.execute("SELECT stars FROM users WHERE id=?", (uid,))
         row = await cur.fetchone()
         return row[0] if row else 0
+async def add_ref(uid: int, ref_id: int):
+    """+10 ⭐ обоим за реферал"""
+    async with aiosqlite.connect(DB) as db:
+        # друг получает 10 ⭐
+        await db.execute(
+            "INSERT INTO users(id,stars) VALUES(?,10) ON CONFLICT(id) DO UPDATE SET stars=stars+10",
+            (ref_id,)
+        )
+        # сам пользователь получает 10 ⭐
+        await db.execute(
+            "INSERT INTO users(id,stars) VALUES(?,10) ON CONFLICT(id) DO UPDATE SET stars=stars+10",
+            (uid,)
+        )
+        await db.commit()
