@@ -25,7 +25,7 @@ dp.include_router(ref_router)
 RENDER_URL = os.getenv("RENDER_EXTERNAL_URL", "your.domain")
 MAIN_KB = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text="🚀 Вирусный Миллионер",
-                          web_app=WebAppInfo(url=f"https://{RENDER_URL}/web"))],
+                          web_app=WebAppInfo(url=f"https://{os.getenv('RENDER_EXTERNAL_URL', 'umnick-bot.onrender.com')}:10000/web"))],
     [InlineKeyboardButton(text="🎵 Песня за 15 сек", callback_data="menu_melody")],
     [InlineKeyboardButton(text="🧠 IQ-Бластер", callback_data="menu_iq")],
     [InlineKeyboardButton(text="🛍️ NFT-магазин (⭐)", callback_data="menu_shop")],
@@ -42,7 +42,7 @@ async def start_cmd(m: types.Message):
     await bot.set_chat_menu_button(
         chat_id=m.chat.id,
         menu_button=MenuButtonWebApp(text="🚀 Играть",
-                                     web_app=WebAppInfo(url=f"https://{RENDER_URL}/web"))
+                                     web_app=WebAppInfo(url=f"https://{os.getenv('RENDER_EXTERNAL_URL', 'umnick-bot.onrender.com')}:10000/web"))
     )
     await m.answer_photo(
         photo="https://i.imgur.com/QwebotN.gif",   # кот в очках
