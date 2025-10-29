@@ -107,3 +107,14 @@ async def main():
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     asyncio.run(main())
+    # в самый низ файла, ПОСЛЕ всего кода
+from aiohttp import web
+import threading
+
+def run_dummy_server():
+    app = web.Application()
+    app.router.add_get("/", lambda _: web.Response(text="Умник 3.0 OK"))
+    runner = web.AppRunner(app)
+    threading.Thread(target=lambda: web.run_app(runner, host="0.0.0.0", port=10000), daemon=True).start()
+
+run_dummy_server()
