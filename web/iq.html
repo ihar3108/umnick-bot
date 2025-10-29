@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <title>IQ-Бластер</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="styles.css" rel="stylesheet">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+    <div id="lvl">Уровень 1</div>
+    <canvas id="canvas" width="320" height="320"></canvas>
+    <div id="controls">
+        <button id="left">⬅️</button>
+        <button id="right">➡️</button>
+        <button id="rot">🔄</button>
+        <button id="down">⬇️</button>
+    </div>
+
+    <script>
+        // Простой тетрис-крафт за 60 строк
+        const canvas = document.getElementById('canvas');
+        const ctx    = canvas.getContext('2d');
+        const tg     = window.Telegram.WebApp;
+        tg.expand();
+
+        const W = 10, H = 20, SIZE = 16;
+        const SHAPES = [
+            [[1,1,1,1]],          // I
+            [[1,1],[1,1]],        // O
+            [[0,1,0],[1,1,1]],    // T
+            [[1,1,0],[0,1,1]],    // S
+            [[0,1,1],[1,1,0]]     // Z
+        ];
+        let board = Array.from({length: H}, () => Array(W).fill(0));
+        let shape = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+        let x = 4, y = 0, lvl = 1, lines = 0;
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // доска
+            for (let r = 0; r < H; r++)
+                for (let c = 0; c < W; c++)
+                    if (board[r][c]) { ctx.fillStyle = "#0a84ff"; ctx.fillRect(c * SIZE, r * SIZE, SIZE, SIZE); }
+            // фигура
+            ctx.fillStyle = "#fff";
+            for (let r = 0; r < shape.length; r++)
+                for (let c = 0; c < shape[r].length; c++)
+                    if (shape[r][c]) ctx.fillRect((x + c) * SIZE, (y + r) * SIZE, SIZE, SIZE);
+        }
+        function collide(nx, ny, ns = shape) {
+            for (let r = 0; r < ns.length; r++)
+                for (let c = 0; c < ns[r].length; c++)
+                    if (ns[r][c] && (ny + r >= H || nx + c < 0 || nx + c >= W || board[ny + r][nx + c])) return true;
+            return false;
+        }
+        function place() {
+            for (let r = 0; r < shape.length; r++)
+                for (let c = 0; c < shape[r].length; c++)
+                    if (shape[r][c]) board[y + r][x + c] = 1;
+            // очистка линий
+            for (let r = H - 1; r >= 0; r--) {
+                if (board[r].every(cell => cell)) {
+                    board.splice(r, 1);
+                    board.unshift(Array(W).fill(0));
+                    lines++;
+                    if (lines % 10 === 0) lvl++;
+                }
+            }
+            shape = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+            x = 4; y = 0;
+            if (collide(x, y)) {
+                alert("Game Over");
+                Telegram.WebApp.sendData(JSON.stringify({action: 'iq_over', lvl: lvl}));
+                Telegram.WebApp.close();
+            }
+        }
+        function drop() {
+            if (!collide(x, y + 1)) y++;
+            else { place(); draw(); }
+        }
+        document.getElementById('left').onclick  = () => { if (!collide(x - 1, y)) x--; draw(); };
+        document.getElementById('right').onclick = () => { if (!collide(x + 1, y)) x++; draw(); };
+        document.getElementById('rot').onclick   = () => {
+            const rot = shape[0].map((_, i) => shape.map(row => row[i]).reverse());
+            if (!collide(x, y, rot)) { shape = rot; draw(); }
+        };
+        document.getElementById('down').onclick = () => drop();
+
+        setInterval(drop, 500);
+        draw();
+    </script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+/* Минималистичный dark-стиль для WebApp */
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: #121212;
+    color: #e1e1e1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    text-align: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+button {
+    background: #0a84ff;
+    color: #fff;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-size: 16px;
+    margin: 8px;
+    cursor: pointer;
+    transition: background .2s;
+}
+
+button:hover {
+    background: #0569d4;
+}
+
+#lvl {
+    font-size: 20px;
+    margin-bottom: 12px;
+    color: #0a84ff;
+}
+
+#q {
+    font-size: 24px;
+    margin-bottom: 24px;
+}
+
+#answers {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
+#boosters {
+    margin-top: 24px;
+}
