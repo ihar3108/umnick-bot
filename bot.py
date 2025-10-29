@@ -54,8 +54,8 @@ async def start_cmd(m: types.Message):
 @dp.callback_query(F.data == "menu_melody")
 async def melody(cb: types.CallbackQuery):
     audios = [
-        {"file": "audio/beatles.mp3", "answer": "The Beatles"},
-        {"file": "audio/queen.mp3", "answer": "Queen"}
+       {"file": "audio/beatles.wav", "answer": "The Beatles"},
+{"file": "audio/queen.wav",  "answer": "Queen"}
     ]
     a = audios[0]
     await cb.message.answer_audio(
